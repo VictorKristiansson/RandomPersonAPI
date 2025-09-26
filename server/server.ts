@@ -22,25 +22,21 @@ app.get("/ping", (req, res) => {
 
 app.get("/random-person", async (req, res) => {
   try {
-    const respone = await fetch("https://randomuser.me/api/");
-    if (!respone.ok) {
+    const response = await fetch("https://randomuser.me/api/");
+    if (!response.ok) {
       throw new Error("Failed to fetch data");
     }
-    const data = await respone.json();
+    const data = await response.json();
     const randomUserFromApi = data.results[0];
 
     const formattedUser = {
-      name: randomUserFromApi.name.first ?? "Unknown",
-      age: randomUserFromApi.dob.age ?? 28,
-      email: randomUserFromApi.email.toLowerCase() ?? "",
+      name: `${randomUserFromApi.name?.first ?? "Unknown"} ${
+        randomUserFromApi.name?.last ?? "Unknown"
+      }`,
+      country: randomUserFromApi.location.country ?? "Unknown",
     };
 
-    const result = userSchema.safeParse(formattedUser);
-    if (!result.success) {
-      return res.status(400).json({ error: result.error });
-    }
-
-    res.json(result.data);
+    res.json(formattedUser);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);
