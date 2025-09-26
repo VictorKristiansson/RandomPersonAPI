@@ -16,7 +16,11 @@ type User = z.infer<typeof userSchema>;
 
 let users: User[] = [];
 
-app.get("/random-user", async (req, res) => {
+app.get("/ping", (req, res) => {
+  res.json({ message: "pong" });
+});
+
+app.get("/random-person", async (req, res) => {
   try {
     const respone = await fetch("https://randomuser.me/api/");
     if (!respone.ok) {
@@ -36,12 +40,21 @@ app.get("/random-user", async (req, res) => {
       return res.status(400).json({ error: result.error });
     }
 
-    console.log(formattedUser);
     res.json(result.data);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);
   }
+});
+
+app.post("/users", (req, res) => {
+  const result = userSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({ error: result.error });
+  }
+  users.push(result.data);
+  res.status(201).json(result.data);
 });
 
 app.listen(PORT, () => {
