@@ -1,18 +1,21 @@
-// Import Express
 import express from "express";
+import { z } from "zod";
 
-// Express application instance
 const app = express();
-
-// Set the port
 const PORT = 3000;
+app.use(express.json());
 
-//  Get -Greet
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.get("/random-user", async (req, res) => {
+  try {
+    const respone = await fetch("https://randomuser.me/api/");
+    if (!respone.ok) {
+      throw new Error("Failed to fetch data");
+    }
+    const data = await respone.json();
+    res.json(data);
+  } catch (error) {}
 });
 
-// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
