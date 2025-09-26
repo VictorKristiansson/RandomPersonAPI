@@ -23,7 +23,21 @@ app.get("/random-user", async (req, res) => {
       throw new Error("Failed to fetch data");
     }
     const data = await respone.json();
-    res.json(data);
+    const randomUserFromApi = data.results[0];
+
+    const formattedUser = {
+      name: randomUserFromApi.name.first ?? "Unknown",
+      age: randomUserFromApi.dob.age ?? 28,
+      email: randomUserFromApi.email.toLowerCase() ?? "",
+    };
+
+    const result = userSchema.safeParse(formattedUser);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    console.log(formattedUser);
+    res.json(result.data);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
     console.error(error);
